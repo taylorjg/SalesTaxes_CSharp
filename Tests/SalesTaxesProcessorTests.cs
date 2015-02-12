@@ -1,4 +1,5 @@
-﻿using Code;
+﻿using System.Linq;
+using Code;
 using NUnit.Framework;
 
 namespace Tests
@@ -9,8 +10,7 @@ namespace Tests
         [Test]
         public void OneItemWithNoBasicTaxAndNoImportDuty()
         {
-            var processor = new SalesTaxesProcessor();
-            var receiptDetails = processor.Purchase(new BasketItem("Book", 10m));
+            var receiptDetails = SalesTaxesProcessor.Purchase(new BasketItem("Book", 10m));
             Assert.That(receiptDetails.SalesTaxes, Is.EqualTo(0m));
             Assert.That(receiptDetails.Total, Is.EqualTo(10m));
         }
@@ -18,8 +18,7 @@ namespace Tests
         [Test]
         public void OneItemWithBasicTaxButNoImportDuty()
         {
-            var processor = new SalesTaxesProcessor();
-            var receiptDetails = processor.Purchase(new BasketItem("Perfume", 10m, SalesTaxes.BasicTax));
+            var receiptDetails = SalesTaxesProcessor.Purchase(new BasketItem("Perfume", 10m, SalesTaxes.BasicTax));
             Assert.That(receiptDetails.SalesTaxes, Is.EqualTo(1m));
             Assert.That(receiptDetails.Total, Is.EqualTo(11m));
         }
@@ -27,8 +26,7 @@ namespace Tests
         [Test]
         public void OneItemWithNoBasicTaxButImportDuty()
         {
-            var processor = new SalesTaxesProcessor();
-            var receiptDetails = processor.Purchase(new BasketItem("Imported Perfume", 10m, SalesTaxes.ImportDuty));
+            var receiptDetails = SalesTaxesProcessor.Purchase(new BasketItem("Imported Perfume", 10m, SalesTaxes.ImportDuty));
             Assert.That(receiptDetails.SalesTaxes, Is.EqualTo(0.5m));
             Assert.That(receiptDetails.Total, Is.EqualTo(10.5m));
         }
@@ -36,8 +34,7 @@ namespace Tests
         [Test]
         public void RoundingTest1()
         {
-            var processor = new SalesTaxesProcessor();
-            var receiptDetails = processor.Purchase(new BasketItem("Music CD", 14.99m, SalesTaxes.BasicTax));
+            var receiptDetails = SalesTaxesProcessor.Purchase(new BasketItem("Music CD", 14.99m, SalesTaxes.BasicTax));
             Assert.That(receiptDetails.SalesTaxes, Is.EqualTo(16.49m - 14.99m));
             Assert.That(receiptDetails.Total, Is.EqualTo(16.49m));
         }
@@ -45,8 +42,7 @@ namespace Tests
         [Test]
         public void RoundingTest2()
         {
-            var processor = new SalesTaxesProcessor();
-            var receiptDetails = processor.Purchase(new BasketItem("Box of imported chocolates", 11.25m, SalesTaxes.ImportDuty));
+            var receiptDetails = SalesTaxesProcessor.Purchase(new BasketItem("Box of imported chocolates", 11.25m, SalesTaxes.ImportDuty));
             Assert.That(receiptDetails.SalesTaxes, Is.EqualTo(11.85m - 11.25m));
             Assert.That(receiptDetails.Total, Is.EqualTo(11.85m));
         }
@@ -54,11 +50,14 @@ namespace Tests
         [Test]
         public void FirstExample()
         {
-            var processor = new SalesTaxesProcessor();
-            var receiptDetails = processor.Purchase(
+            var receiptDetails = SalesTaxesProcessor.Purchase(
                 new BasketItem("Book", 12.49m),
                 new BasketItem("Music CD", 14.99m, SalesTaxes.BasicTax),
                 new BasketItem("Chocolate bar", 0.85m));
+            var receiptItems = receiptDetails.Items.ToList();
+            Assert.That(receiptItems[0].PriceIncludingTaxes, Is.EqualTo(12.49m));
+            Assert.That(receiptItems[1].PriceIncludingTaxes, Is.EqualTo(16.49m));
+            Assert.That(receiptItems[2].PriceIncludingTaxes, Is.EqualTo(0.85m));
             Assert.That(receiptDetails.SalesTaxes, Is.EqualTo(1.5m));
             Assert.That(receiptDetails.Total, Is.EqualTo(29.83m));
         }
@@ -66,10 +65,12 @@ namespace Tests
         [Test]
         public void SecondExample()
         {
-            var processor = new SalesTaxesProcessor();
-            var receiptDetails = processor.Purchase(
+            var receiptDetails = SalesTaxesProcessor.Purchase(
                 new BasketItem("Imported box of chocolates", 10m, SalesTaxes.ImportDuty),
                 new BasketItem("Imported bottle of perfume", 47.50m, SalesTaxes.BasicTax, SalesTaxes.ImportDuty));
+            var receiptItems = receiptDetails.Items.ToList();
+            Assert.That(receiptItems[0].PriceIncludingTaxes, Is.EqualTo(10.50m));
+            Assert.That(receiptItems[1].PriceIncludingTaxes, Is.EqualTo(54.65m));
             Assert.That(receiptDetails.SalesTaxes, Is.EqualTo(7.65m));
             Assert.That(receiptDetails.Total, Is.EqualTo(65.15m));
         }
@@ -77,12 +78,16 @@ namespace Tests
         [Test]
         public void ThirdExample()
         {
-            var processor = new SalesTaxesProcessor();
-            var receiptDetails = processor.Purchase(
+            var receiptDetails = SalesTaxesProcessor.Purchase(
                 new BasketItem("Imported bottle of perfume", 27.99m, SalesTaxes.BasicTax, SalesTaxes.ImportDuty),
                 new BasketItem("Bottle of perfume", 18.99m, SalesTaxes.BasicTax),
                 new BasketItem("Packet of paracetamol", 9.75m),
                 new BasketItem("Box of imported chocolates", 11.25m, SalesTaxes.ImportDuty));
+            var receiptItems = receiptDetails.Items.ToList();
+            Assert.That(receiptItems[0].PriceIncludingTaxes, Is.EqualTo(32.19m));
+            Assert.That(receiptItems[1].PriceIncludingTaxes, Is.EqualTo(20.89m));
+            Assert.That(receiptItems[2].PriceIncludingTaxes, Is.EqualTo(9.75m));
+            Assert.That(receiptItems[3].PriceIncludingTaxes, Is.EqualTo(11.85m));
             Assert.That(receiptDetails.SalesTaxes, Is.EqualTo(6.70m));
             Assert.That(receiptDetails.Total, Is.EqualTo(74.68m));
         }

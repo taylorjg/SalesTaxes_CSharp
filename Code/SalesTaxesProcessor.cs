@@ -6,7 +6,7 @@ namespace Code
 {
     public class SalesTaxesProcessor
     {
-        public ReceiptDetails Purchase(params BasketItem[] basketItems)
+        public static ReceiptDetails Purchase(params BasketItem[] basketItems)
         {
             var seed = new List<ReceiptItem>();
 
@@ -21,21 +21,16 @@ namespace Code
             return new ReceiptDetails(basketItems.Aggregate(seed, func));
         }
 
+        private static readonly IDictionary<SalesTaxes, decimal> SalesTaxPercentages = new Dictionary<SalesTaxes, decimal>
+        {
+            {SalesTaxes.BasicTax, 10},
+            {SalesTaxes.ImportDuty, 5}
+        };
+
         private static decimal CalculateSalesTaxes(BasketItem item)
         {
-            var salesTaxes = 0m;
-
-            if (item.SalesTaxes.Contains(SalesTaxes.BasicTax))
-            {
-                salesTaxes += CalculatePercentage(item.Price, 10).RoundUp();
-            }
-
-            if (item.SalesTaxes.Contains(SalesTaxes.ImportDuty))
-            {
-                salesTaxes += CalculatePercentage(item.Price, 5).RoundUp();
-            }
-
-            return salesTaxes;
+            var percentage = item.SalesTaxes.Select(st => SalesTaxPercentages[st]).Sum();
+            return CalculatePercentage(item.Price, percentage).RoundUp();
         }
 
         private static decimal CalculatePercentage(decimal n, decimal p)
