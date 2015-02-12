@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace Code
@@ -8,37 +7,40 @@ namespace Code
     {
         public ReceiptDetails Purchase(params BasketItem[] basketItems)
         {
+            // TODO: basketItems.Aggregate()
+
             var receiptItems = new List<ReceiptItem>();
 
             foreach (var item in basketItems)
             {
-                var itemSalesTax = 0m;
-
-                if (item.SalesTaxes.Contains(SalesTaxes.BasicTax))
-                {
-                    itemSalesTax += CalculatePercentage(item.Price, 10);
-                }
-
-                if (item.SalesTaxes.Contains(SalesTaxes.ImportDuty))
-                {
-                    itemSalesTax += CalculatePercentage(item.Price, 5);
-                }
-
-                var receiptItem = new ReceiptItem(item, item.Price + itemSalesTax);
+                var salesTaxes = CalculateSalesTaxes(item);
+                var receiptItem = new ReceiptItem(item, item.Price + salesTaxes);
                 receiptItems.Add(receiptItem);
             }
 
             return new ReceiptDetails(receiptItems);
         }
 
-        private static decimal CalculatePercentage(decimal n, decimal p)
+        private static decimal CalculateSalesTaxes(BasketItem item)
         {
-            return RoundUp(n*p/100);
+            var salesTaxes = 0m;
+
+            if (item.SalesTaxes.Contains(SalesTaxes.BasicTax))
+            {
+                salesTaxes += CalculatePercentage(item.Price, 10).RoundUp();
+            }
+
+            if (item.SalesTaxes.Contains(SalesTaxes.ImportDuty))
+            {
+                salesTaxes += CalculatePercentage(item.Price, 5).RoundUp();
+            }
+
+            return salesTaxes;
         }
 
-        private static decimal RoundUp(decimal n)
+        private static decimal CalculatePercentage(decimal n, decimal p)
         {
-            return Math.Ceiling(n * 20m) / 20.0m;
+            return (n*p/100);
         }
     }
 }

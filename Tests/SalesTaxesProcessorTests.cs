@@ -34,7 +34,7 @@ namespace Tests
         }
 
         [Test]
-        public void RoundingShizzle()
+        public void RoundingTest1()
         {
             var processor = new SalesTaxesProcessor();
             var receiptDetails = processor.Purchase(new BasketItem("Music CD", 14.99m, SalesTaxes.BasicTax));
@@ -43,7 +43,7 @@ namespace Tests
         }
 
         [Test]
-        public void RoundingShizzle2()
+        public void RoundingTest2()
         {
             var processor = new SalesTaxesProcessor();
             var receiptDetails = processor.Purchase(new BasketItem("Box of imported chocolates", 11.25m, SalesTaxes.ImportDuty));
