@@ -10,14 +10,14 @@ namespace Code
             _items = items;
         }
 
-        public decimal SalesTaxes
+        public decimal SalesTax
         {
             get { return Total - Items.Sum(x => x.BasketItem.Price); }
         }
 
         public decimal Total
         {
-            get { return Items.Sum(x => x.PriceIncludingTaxes); }
+            get { return Items.Sum(x => x.PriceIncludingSalesTax); }
         }
 
         public IEnumerable<ReceiptItem> Items

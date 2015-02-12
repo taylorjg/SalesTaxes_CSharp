@@ -1,6 +1,6 @@
 ﻿namespace Code
 {
-    public enum SalesTaxes
+    public enum SalesTaxTypes
     {
         BasicTax,
         ImportDuty
