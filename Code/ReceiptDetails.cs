@@ -5,26 +5,26 @@ namespace Code
 {
     public class ReceiptDetails
     {
-        public ReceiptDetails(IEnumerable<ReceiptItem> items)
+        public ReceiptDetails(IEnumerable<ReceiptItem> receiptItems)
         {
-            _items = items;
+            _receiptItems = receiptItems;
         }
 
         public decimal SalesTax
         {
-            get { return Total - Items.Sum(x => x.BasketItem.Price); }
+            get { return ReceiptItems.Sum(x => x.SalesTax); }
         }
 
         public decimal Total
         {
-            get { return Items.Sum(x => x.PriceIncludingSalesTax); }
+            get { return ReceiptItems.Sum(x => x.PriceIncludingSalesTax); }
         }
 
-        public IEnumerable<ReceiptItem> Items
+        public IEnumerable<ReceiptItem> ReceiptItems
         {
-            get { return _items; }
+            get { return _receiptItems; }
         }
 
-        private readonly IEnumerable<ReceiptItem> _items;
+        private readonly IEnumerable<ReceiptItem> _receiptItems;
     }
 }

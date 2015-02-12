@@ -8,17 +8,8 @@ namespace Code
     {
         public static ReceiptDetails ProcessBasket(params BasketItem[] basketItems)
         {
-            var seed = new List<ReceiptItem>();
-
-            Func<List<ReceiptItem>, BasketItem, List<ReceiptItem>> func = (acc, item) =>
-            {
-                var salesTax = CalculateSalesTax(item);
-                var receiptItem = new ReceiptItem(item, item.Price + salesTax);
-                acc.Add(receiptItem);
-                return acc;
-            };
-
-            return new ReceiptDetails(basketItems.Aggregate(seed, func));
+            var receiptItems = basketItems.Select(basketItem => new ReceiptItem(basketItem, CalculateSalesTax(basketItem)));
+            return new ReceiptDetails(receiptItems);
         }
 
         private static readonly IDictionary<SalesTaxTypes, decimal> SalesTaxPercentages = new Dictionary<SalesTaxTypes, decimal>
@@ -27,10 +18,10 @@ namespace Code
             {SalesTaxTypes.ImportDuty, 5}
         };
 
-        private static decimal CalculateSalesTax(BasketItem item)
+        private static decimal CalculateSalesTax(BasketItem basketItem)
         {
-            var percentage = item.SalesTaxTypes.Select(stt => SalesTaxPercentages[stt]).Sum();
-            return RoundUp(CalculatePercentage(item.Price, percentage));
+            var percentage = basketItem.SalesTaxTypes.Select(stt => SalesTaxPercentages[stt]).Sum();
+            return RoundUp(CalculatePercentage(basketItem.Price, percentage));
         }
 
         private static decimal CalculatePercentage(decimal n, decimal p)

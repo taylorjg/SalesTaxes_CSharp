@@ -2,10 +2,10 @@
 {
     public class ReceiptItem
     {
-        public ReceiptItem(BasketItem basketItem, decimal priceIncludingSalesTax)
+        public ReceiptItem(BasketItem basketItem, decimal salesTax)
         {
             _basketItem = basketItem;
-            _priceIncludingSalesTax = priceIncludingSalesTax;
+            _salesTax = salesTax;
         }
 
         public BasketItem BasketItem
@@ -13,12 +13,17 @@
             get { return _basketItem; }
         }
 
+        public decimal SalesTax
+        {
+            get { return _salesTax; }
+        }
+
         public decimal PriceIncludingSalesTax
         {
-            get { return _priceIncludingSalesTax; }
+            get { return _basketItem.Price +  _salesTax; }
         }
 
         private readonly BasketItem _basketItem;
-        private readonly decimal _priceIncludingSalesTax;
+        private readonly decimal _salesTax;
     }
 }

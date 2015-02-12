@@ -54,7 +54,7 @@ namespace Tests
                 new BasketItem("Book", 12.49m),
                 new BasketItem("Music CD", 14.99m, SalesTaxTypes.BasicTax),
                 new BasketItem("Chocolate bar", 0.85m));
-            var receiptItems = receiptDetails.Items.ToList();
+            var receiptItems = receiptDetails.ReceiptItems.ToList();
             Assert.That(receiptItems[0].PriceIncludingSalesTax, Is.EqualTo(12.49m));
             Assert.That(receiptItems[1].PriceIncludingSalesTax, Is.EqualTo(16.49m));
             Assert.That(receiptItems[2].PriceIncludingSalesTax, Is.EqualTo(0.85m));
@@ -68,7 +68,7 @@ namespace Tests
             var receiptDetails = SalesTaxCalculator.ProcessBasket(
                 new BasketItem("Imported box of chocolates", 10m, SalesTaxTypes.ImportDuty),
                 new BasketItem("Imported bottle of perfume", 47.50m, SalesTaxTypes.BasicTax, SalesTaxTypes.ImportDuty));
-            var receiptItems = receiptDetails.Items.ToList();
+            var receiptItems = receiptDetails.ReceiptItems.ToList();
             Assert.That(receiptItems[0].PriceIncludingSalesTax, Is.EqualTo(10.50m));
             Assert.That(receiptItems[1].PriceIncludingSalesTax, Is.EqualTo(54.65m));
             Assert.That(receiptDetails.SalesTax, Is.EqualTo(7.65m));
@@ -83,7 +83,7 @@ namespace Tests
                 new BasketItem("Bottle of perfume", 18.99m, SalesTaxTypes.BasicTax),
                 new BasketItem("Packet of paracetamol", 9.75m),
                 new BasketItem("Box of imported chocolates", 11.25m, SalesTaxTypes.ImportDuty));
-            var receiptItems = receiptDetails.Items.ToList();
+            var receiptItems = receiptDetails.ReceiptItems.ToList();
             Assert.That(receiptItems[0].PriceIncludingSalesTax, Is.EqualTo(32.19m));
             Assert.That(receiptItems[1].PriceIncludingSalesTax, Is.EqualTo(20.89m));
             Assert.That(receiptItems[2].PriceIncludingSalesTax, Is.EqualTo(9.75m));
