@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Code
@@ -7,18 +8,17 @@ namespace Code
     {
         public ReceiptDetails Purchase(params BasketItem[] basketItems)
         {
-            // TODO: basketItems.Aggregate()
+            var seed = new List<ReceiptItem>();
 
-            var receiptItems = new List<ReceiptItem>();
-
-            foreach (var item in basketItems)
+            Func<List<ReceiptItem>, BasketItem, List<ReceiptItem>> func = (acc, item) =>
             {
                 var salesTaxes = CalculateSalesTaxes(item);
                 var receiptItem = new ReceiptItem(item, item.Price + salesTaxes);
-                receiptItems.Add(receiptItem);
-            }
+                acc.Add(receiptItem);
+                return acc;
+            };
 
-            return new ReceiptDetails(receiptItems);
+            return new ReceiptDetails(basketItems.Aggregate(seed, func));
         }
 
         private static decimal CalculateSalesTaxes(BasketItem item)
