@@ -8,8 +8,26 @@ namespace Code
     {
         public static ReceiptDetails ProcessBasket(params BasketItem[] basketItems)
         {
-            var receiptItems = basketItems.Select(basketItem => new ReceiptItem(basketItem, CalculateSalesTax(basketItem)));
+            var receiptItems = basketItems.Select(basketItem =>
+            {
+                var salesTaxTypes = GetApplicableSalesTaxTypes(basketItem);
+                var salesTax = CalculateSalesTax(basketItem.Price, salesTaxTypes);
+                return new ReceiptItem(basketItem, salesTax);
+            });
             return new ReceiptDetails(receiptItems);
+        }
+
+        private static readonly Category[] CategoriesExemptFromBasicTax = {
+            Category.Books,
+            Category.Food,
+            Category.Medicinal
+        };
+
+        private static IEnumerable<SalesTaxTypes> GetApplicableSalesTaxTypes(BasketItem basketItem)
+        {
+            var exemptFromBasicTax = CategoriesExemptFromBasicTax.Contains(basketItem.Category);
+            if (!exemptFromBasicTax) yield return SalesTaxTypes.BasicTax;
+            if (basketItem.IsImported) yield return SalesTaxTypes.ImportDuty;
         }
 
         private static readonly IDictionary<SalesTaxTypes, decimal> SalesTaxPercentages = new Dictionary<SalesTaxTypes, decimal>
@@ -18,10 +36,10 @@ namespace Code
             {SalesTaxTypes.ImportDuty, 5}
         };
 
-        private static decimal CalculateSalesTax(BasketItem basketItem)
+        private static decimal CalculateSalesTax(decimal price, IEnumerable<SalesTaxTypes> salesTaxTypes)
         {
-            var percentage = basketItem.SalesTaxTypes.Select(stt => SalesTaxPercentages[stt]).Sum();
-            return RoundUp(CalculatePercentage(basketItem.Price, percentage));
+            var percentage = salesTaxTypes.Select(stt => SalesTaxPercentages[stt]).Sum();
+            return RoundUp(CalculatePercentage(price, percentage));
         }
 
         private static decimal CalculatePercentage(decimal n, decimal p)
